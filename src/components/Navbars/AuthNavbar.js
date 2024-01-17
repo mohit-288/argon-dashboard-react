@@ -35,10 +35,8 @@ const AdminNavbar = () => {
       <Navbar className="navbar-top navbar-horizontal navbar-dark" expand="md">
         <Container className="px-4">
           <NavbarBrand to="/" tag={Link}>
-            <img
-              alt="..."
-              src={require("../../assets/img/brand/argon-react-white.png")}
-            />
+                <div style={{backgroundColor:"white", width:"200px", height:"100px",  borderRadius:"6px"}}>
+                <img style={{ width:"200px", height:"100px"}} alt="" src="https://portal.bankit.in:9090/Demo/wl/10002/images/logo.png" /></div>
           </NavbarBrand>
           <button className="navbar-toggler" id="navbar-collapse-main">
             <span className="navbar-toggler-icon" />

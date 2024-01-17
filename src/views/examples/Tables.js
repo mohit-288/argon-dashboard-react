@@ -41,7 +41,7 @@ import Header from "components/Headers/Header.js";
 const Tables = () => {
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       {/* Page content */}
       <Container className="mt--7" fluid>
         {/* Table */}

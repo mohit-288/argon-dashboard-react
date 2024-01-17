@@ -17,90 +17,91 @@
 */
 import { Link } from "react-router-dom";
 // reactstrap components
-import {
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  DropdownToggle,
-  Form,
-  FormGroup,
-  InputGroupAddon,
-  InputGroupText,
-  Input,
-  InputGroup,
-  Navbar,
-  Nav,
-  Container,
-  Media,
-} from "reactstrap";
+import { React, useState, useEffect } from "react";
+import { Button, Navbar, Nav, Container, Media } from "reactstrap";
+import PopOp from "components/PopUp/PopUp";
 
 const AdminNavbar = (props) => {
+  const [balance, setBalance] = useState(0.0);
+  const [agentData, setAgentData] = useState(null);
+  const [toggle, setToggle] = useState(false);
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+
+  const changeToggle = () => {
+    setToggle((prev) => !prev);
+  };
+
+  const handleMouseEnter = () => {
+    setToggle(true);
+  };
+
+  const handleMouseLeave = () => {
+    setToggle(false);
+  };
+
+  useEffect(() => {
+    fetchBalance();
+  }, [baseUrl]);
+
+  const fetchBalance = async (e) => {
+	let AgentID = "";
+	let key = "";
+	const dataFromLocalStorage = localStorage.getItem("apiData");
+      if (dataFromLocalStorage) {
+        const data = await JSON.parse(dataFromLocalStorage);
+		AgentID = data.agentId;
+    	key = data.txn_key;
+        setAgentData(data);
+      }
+	 
+    try {
+      const response = await fetch(baseUrl + "/BalanceReq", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ AgentID, key }),
+      });
+
+      const res = await response.json();
+      if (res.status === "0") {
+        setBalance(res.balance);
+      }
+    } catch (error) {
+      // Set error state if there's an error
+    }
+  };
   return (
     <>
       <Navbar className="navbar-top navbar-dark" expand="md" id="navbar-main">
         <Container fluid>
           <Link
             className="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block"
-            to="/"
+            to="/admin"
           >
             {props.brandText}
           </Link>
-          <Form className="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
-            <FormGroup className="mb-0">
-              <InputGroup className="input-group-alternative">
-                <InputGroupAddon addonType="prepend">
-                  <InputGroupText>
-                    <i className="fas fa-search" />
-                  </InputGroupText>
-                </InputGroupAddon>
-                <Input placeholder="Search" type="text" />
-              </InputGroup>
-            </FormGroup>
-          </Form>
           <Nav className="align-items-center d-none d-md-flex" navbar>
-            <UncontrolledDropdown nav>
-              <DropdownToggle className="pr-0" nav>
-                <Media className="align-items-center">
-                  <span className="avatar avatar-sm rounded-circle">
-                    <img
-                      alt="..."
-                      src={require("../../assets/img/theme/team-4-800x800.jpg")}
-                    />
-                  </span>
-                  <Media className="ml-2 d-none d-lg-block">
-                    <span className="mb-0 text-sm font-weight-bold">
-                      Jessica Jones
-                    </span>
-                  </Media>
-                </Media>
-              </DropdownToggle>
-              <DropdownMenu className="dropdown-menu-arrow" right>
-                <DropdownItem className="noti-title" header tag="div">
-                  <h6 className="text-overflow m-0">Welcome!</h6>
-                </DropdownItem>
-                <DropdownItem to="/admin/user-profile" tag={Link}>
-                  <i className="ni ni-single-02" />
-                  <span>My profile</span>
-                </DropdownItem>
-                <DropdownItem to="/admin/user-profile" tag={Link}>
-                  <i className="ni ni-settings-gear-65" />
-                  <span>Settings</span>
-                </DropdownItem>
-                <DropdownItem to="/admin/user-profile" tag={Link}>
-                  <i className="ni ni-calendar-grid-58" />
-                  <span>Activity</span>
-                </DropdownItem>
-                <DropdownItem to="/admin/user-profile" tag={Link}>
-                  <i className="ni ni-support-16" />
-                  <span>Support</span>
-                </DropdownItem>
-                <DropdownItem divider />
-                <DropdownItem href="#pablo" onClick={(e) => e.preventDefault()}>
-                  <i className="ni ni-user-run" />
-                  <span>Logout</span>
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
+            <Button onClick={fetchBalance}>
+              <span className="ni ni-money-coins"></span> Balance &nbsp;{" "}
+              {balance}
+            </Button>
+            <Media
+              className="align-items-center"
+              onClick={() => changeToggle()}
+              style={{ cursor: "pointer" }}
+              onMouseEnter={handleMouseEnter}
+            >
+              <Media className="ml-2 d-none d-lg-block">
+                <span
+                  className="mb-0 text-sm font-weight-bold"
+                  style={{ color: "white" }}
+                >
+                  My Account
+                </span>
+              </Media>
+            </Media>
+            {toggle ? <PopOp onClose={handleMouseLeave} /> : null}
           </Nav>
         </Container>
       </Navbar>

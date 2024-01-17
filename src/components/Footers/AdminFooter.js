@@ -1,26 +1,19 @@
-/*!
-
-=========================================================
-* Argon Dashboard React - v1.2.3
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-/*eslint-disable*/
-
-// reactstrap components
 import { Container, Row, Col, Nav, NavItem, NavLink } from "reactstrap";
+import { useState , useEffect } from "react";
 
 const Footer = () => {
+
+  const [storedData, setStoredData] = useState(null);
+
+  useEffect(() => {
+    const dataFromLocalStorage = localStorage.getItem('apiData');
+  
+    if (dataFromLocalStorage) {
+      const parsedData = JSON.parse(dataFromLocalStorage);
+      setStoredData(parsedData);
+    }
+  }, []);
+
   return (
     <footer className="footer">
       <Row className="align-items-center justify-content-xl-between">
@@ -33,7 +26,7 @@ const Footer = () => {
               rel="noopener noreferrer"
               target="_blank"
             >
-              Creative Tim
+              Bankit Services Pvt. Ltd.
             </a>
           </div>
         </Col>
@@ -46,7 +39,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                Creative Tim
+                Retailer Portal
               </NavLink>
             </NavItem>
 
@@ -70,15 +63,6 @@ const Footer = () => {
               </NavLink>
             </NavItem>
 
-            <NavItem>
-              <NavLink
-                href="https://github.com/creativetimofficial/argon-dashboard/blob/master/LICENSE.md?ref=adr-admin-footer"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                MIT License
-              </NavLink>
-            </NavItem>
           </Nav>
         </Col>
       </Row>

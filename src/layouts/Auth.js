@@ -57,17 +57,14 @@ const Auth = (props) => {
   return (
     <>
       <div className="main-content" ref={mainContent}>
-        <AuthNavbar />
-        <div className="header bg-gradient-info py-7 py-lg-8">
-          <Container>
-            <div className="header-body text-center mb-7">
+        {/* <AuthNavbar /> */}
+        <div className="header bg-gradient-info py-7 py-lg-5">
+          <Container >
+            <div className="header-body text-center mb-8">
               <Row className="justify-content-center">
-                <Col lg="5" md="6">
-                  <h1 className="text-white">Welcome!</h1>
-                  <p className="text-lead text-light">
-                    Use these awesome forms to login or create new account in
-                    your project for free.
-                  </p>
+                <Col lg="6" >
+                  <div style={{backgroundColor:"white", borderRadius:"6px"}}>
+                  <img style={{width:"16rem", margin:"20px"}} alt="" src="https://portal.bankit.in:9090/Demo/wl/10002/images/logo.png" /></div>  
                 </Col>
               </Row>
             </div>

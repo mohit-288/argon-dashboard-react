@@ -16,47 +16,78 @@
 
 */
 /*eslint-disable*/
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink as NavLinkRRD, Link } from "react-router-dom";
 // nodejs library to set properties for components
 import { PropTypes } from "prop-types";
 
 // reactstrap components
+import { MDBIcon } from 'mdb-react-ui-kit';
 import {
   Button,
-  Card,
-  CardHeader,
-  CardBody,
-  CardTitle,
   Collapse,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  DropdownToggle,
-  FormGroup,
-  Form,
-  Input,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroup,
   Media,
   NavbarBrand,
   Navbar,
   NavItem,
   NavLink,
   Nav,
-  Progress,
-  Table,
   Container,
   Row,
+  NavbarText,
   Col,
+  Dropdown,
+  DropdownItem,
+  DropdownToggle,
+  DropdownMenu
 } from "reactstrap";
 
-var ps;
 
 const Sidebar = (props) => {
   const [collapseOpen, setCollapseOpen] = useState();
-  // verifies if routeName is the one active (in browser input)
+  // verifies if routeName is the one active (in browser input) const [storedData, setStoredData] = useState(null);
+  const [storedData, setStoredData] = useState([]);
+  const [agentData, setAgentData] = useState([]);
+  const [balance, setBalance] = useState("0.0");
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const toggle = () => setDropdownOpen(!dropdownOpen);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+  
+  const fetchData = async () => {
+    const dataFromLocalStorage = localStorage.getItem("apiData");
+    let AgentID = "";
+    let key = "";
+    if (dataFromLocalStorage) {
+      const parsedData = JSON.parse(dataFromLocalStorage);
+      const parentList = parsedData.parentList;
+      AgentID = parsedData.agentId;
+      key = parsedData.txn_key;
+      setAgentData(parsedData);
+      setStoredData(parentList);
+    }
+    try {
+      const response = await fetch(baseUrl + "/BalanceReq", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ AgentID, key }),
+      });
+
+      const res = await response.json();
+      console.log(res);
+      if (res.status === "0") {
+        setBalance(res.balance);
+      }
+    } catch (error) {
+      // Set error state if there's an error
+    }
+  };
   const activeRoute = (routeName) => {
     return props.location.pathname.indexOf(routeName) > -1 ? "active" : "";
   };
@@ -69,20 +100,31 @@ const Sidebar = (props) => {
     setCollapseOpen(false);
   };
   // creates the links that appear in the left menu / Sidebar
-  const createLinks = (routes) => {
+  const createLinks = (routes, storedData) => {
     return routes.map((prop, key) => {
-      return (
-        <NavItem key={key}>
+      return storedData.some((v) => v.dispName === prop.name) ? (
+        <NavItem size="sm" key={key}>
           <NavLink
             to={prop.layout + prop.path}
             tag={NavLinkRRD}
             onClick={closeCollapse}
           >
-            <i className={prop.icon} />
-            {prop.name}
+            {/* <img style={{width:"32px", height:"32px", borderRadius:"50%" , 
+            backgroundColor:"#31304D", marginBottom:"12px"}}src={prop.icon} /> */}
+
+            <NavbarText
+              style={{
+                paddingLeft: "10px",
+                marginBlock: "-5px",
+                fontWeight: "bold",
+                
+              }}
+            >
+              {prop.name}
+            </NavbarText>
           </NavLink>
         </NavItem>
-      );
+      ) : null;
     });
   };
 
@@ -103,7 +145,7 @@ const Sidebar = (props) => {
   return (
     <Navbar
       className="navbar-vertical fixed-left navbar-light bg-white"
-      expand="md"
+      expand="sm"
       id="sidenav-main"
     >
       <Container fluid>
@@ -127,59 +169,10 @@ const Sidebar = (props) => {
         ) : null}
         {/* User */}
         <Nav className="align-items-center d-md-none">
-          <UncontrolledDropdown nav>
-            <DropdownToggle nav className="nav-link-icon">
-              <i className="ni ni-bell-55" />
-            </DropdownToggle>
-            <DropdownMenu
-              aria-labelledby="navbar-default_dropdown_1"
-              className="dropdown-menu-arrow"
-              right
-            >
-              <DropdownItem>Action</DropdownItem>
-              <DropdownItem>Another action</DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem>Something else here</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
-          <UncontrolledDropdown nav>
-            <DropdownToggle nav>
-              <Media className="align-items-center">
-                <span className="avatar avatar-sm rounded-circle">
-                  <img
-                    alt="..."
-                    src={require("../../assets/img/theme/team-1-800x800.jpg")}
-                  />
-                </span>
-              </Media>
-            </DropdownToggle>
-            <DropdownMenu className="dropdown-menu-arrow" right>
-              <DropdownItem className="noti-title" header tag="div">
-                <h6 className="text-overflow m-0">Welcome!</h6>
-              </DropdownItem>
-              <DropdownItem to="/admin/user-profile" tag={Link}>
-                <i className="ni ni-single-02" />
-                <span>My profile</span>
-              </DropdownItem>
-              <DropdownItem to="/admin/user-profile" tag={Link}>
-                <i className="ni ni-settings-gear-65" />
-                <span>Settings</span>
-              </DropdownItem>
-              <DropdownItem to="/admin/user-profile" tag={Link}>
-                <i className="ni ni-calendar-grid-58" />
-                <span>Activity</span>
-              </DropdownItem>
-              <DropdownItem to="/admin/user-profile" tag={Link}>
-                <i className="ni ni-support-16" />
-                <span>Support</span>
-              </DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem href="#pablo" onClick={(e) => e.preventDefault()}>
-                <i className="ni ni-user-run" />
-                <span>Logout</span>
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
+       
+       <Button outline onClick={fetchData}><MDBIcon className='ms-1' size="1x" icon="coins"> &nbsp; {balance}</MDBIcon></Button>
+        <Button color="secondary" ><MDBIcon className='ms-1' size="2x" fas icon="user-circle" /></Button>
+   
         </Nav>
         {/* Collapse */}
         <Collapse navbar isOpen={collapseOpen}>
@@ -211,56 +204,13 @@ const Sidebar = (props) => {
               </Col>
             </Row>
           </div>
-          {/* Form */}
-          <Form className="mt-4 mb-3 d-md-none">
-            <InputGroup className="input-group-rounded input-group-merge">
-              <Input
-                aria-label="Search"
-                className="form-control-rounded form-control-prepended"
-                placeholder="Search"
-                type="search"
-              />
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <span className="fa fa-search" />
-                </InputGroupText>
-              </InputGroupAddon>
-            </InputGroup>
-          </Form>
+
           {/* Navigation */}
-          <Nav navbar>{createLinks(routes)}</Nav>
-          {/* Divider */}
-          <hr className="my-3" />
-          {/* Heading */}
-          <h6 className="navbar-heading text-muted">Documentation</h6>
-          {/* Navigation */}
-          <Nav className="mb-md-3" navbar>
-            <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/overview?ref=adr-admin-sidebar">
-                <i className="ni ni-spaceship" />
-                Getting started
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/colors?ref=adr-admin-sidebar">
-                <i className="ni ni-palette" />
-                Foundation
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/alerts?ref=adr-admin-sidebar">
-                <i className="ni ni-ui-04" />
-                Components
-              </NavLink>
-            </NavItem>
-          </Nav>
-          <Nav className="mb-md-3" navbar>
-            <NavItem className="active-pro active">
-              <NavLink href="https://www.creative-tim.com/product/argon-dashboard-pro-react?ref=adr-admin-sidebar">
-                <i className="ni ni-spaceship" />
-                Upgrade to PRO
-              </NavLink>
-            </NavItem>
+          
+          <Nav navbar>
+          
+          {createLinks(routes, storedData)}
+          
           </Nav>
         </Collapse>
       </Container>
